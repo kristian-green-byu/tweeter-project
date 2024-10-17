@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfoHook from "./UserInfoHook";
-import { UserInfoPresenter, UserInfoView } from "../../presenters/UserInfoPresenter";
+import { UserInfoPresenter } from "../../presenters/UserInfoPresenter";
+import { MessageView } from "../../presenters/Presenter";
 
 const UserInfo = () => {
 
@@ -17,7 +18,7 @@ const UserInfo = () => {
     setDisplayedUser(currentUser!);
   }
 
-  const listener: UserInfoView = {
+  const listener: MessageView = {
     displayErrorMessage: displayErrorMessage,
     displayInfoMessage: displayInfoMessage,
     clearLastInfoMessage: clearLastInfoMessage

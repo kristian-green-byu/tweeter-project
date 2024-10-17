@@ -1,33 +1,26 @@
-import { NavigateFunction } from "react-router-dom";
-import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model/service/UserService";
 import { ChangeEvent } from "react";
 import { Buffer } from "buffer";
+import { AuthPresenter, AuthView } from "./AuthPresenter";
 
 
-export interface RegisterView {
-    displayErrorMessage: (message: string) => void;
-    navigate: NavigateFunction;
-    updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void;
+export interface RegisterView extends AuthView {
     setImageBytes: (bytes: Uint8Array) => void;
 }
 
-export class RegisterPresenter {
-    public isLoading = false;
-    private view: RegisterView;
-    private service: UserService;
+export class RegisterPresenter extends AuthPresenter<RegisterView>{
     public imageUrl: string = "";
     public imageFileExtension: string = "";
 
     public constructor(view: RegisterView) {
-        this.view = view;
-        this.service = new UserService;
+        super(view);
+    }
+
+    protected getItemDescription(): string {
+        return "register user"
     }
 
     public doRegister = async (firstName: string, lastName: string, alias: string, password: string, imageBytes: Uint8Array, imageFileExtension: string, rememberMe: boolean) => {
-        try {
-            this.isLoading = false;
-
+        super.doAuth(async () => {
             const [user, authToken] = await this.service.register(
                 firstName,
                 lastName,
@@ -36,16 +29,8 @@ export class RegisterPresenter {
                 imageBytes,
                 imageFileExtension
             );
-
             this.view.updateUserInfo(user, user, authToken, rememberMe);
-            this.view.navigate("/");
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to register user because of exception: ${error}`
-            );
-        } finally {
-            this.isLoading = false;
-        }
+        });
     };
 
     public handleFileChange(event: ChangeEvent<HTMLInputElement>) {
