@@ -1,4 +1,4 @@
-import { AuthToken, User } from "tweeter-shared";
+import { AuthToken, FollowRequest, IsFollowerStatusRequest, User } from "tweeter-shared";
 import { MessageView, Presenter } from "./Presenter";
 import { FollowService } from "../model/service/FollowService";
 export class UserInfoPresenter extends Presenter<MessageView>{
@@ -20,10 +20,12 @@ export class UserInfoPresenter extends Presenter<MessageView>{
         // Pause so we can see the follow message. Remove when connected to the server
         await new Promise((f) => setTimeout(f, 2000));
 
-        // TODO: Call the server
-
-        const followerCount = await this.service.getFollowerCount(authToken, userToFollow);
-        const followeeCount = await this.service.getFolloweeCount(authToken, userToFollow);
+        const request: FollowRequest = {
+            token: authToken.token,
+            user: userToFollow
+        }
+        const followerCount = await this.service.getFollowerCount(request);
+        const followeeCount = await this.service.getFolloweeCount(request);
 
         return [followerCount, followeeCount];
     };
@@ -35,10 +37,12 @@ export class UserInfoPresenter extends Presenter<MessageView>{
         // Pause so we can see the unfollow message. Remove when connected to the server
         await new Promise((f) => setTimeout(f, 2000));
 
-        // TODO: Call the server
-
-        const followerCount = await this.service.getFollowerCount(authToken, userToUnfollow);
-        const followeeCount = await this.service.getFolloweeCount(authToken, userToUnfollow);
+        const request: FollowRequest = {
+            token: authToken.token,
+            user: userToUnfollow
+        }
+        const followerCount = await this.service.getFollowerCount(request);
+        const followeeCount = await this.service.getFolloweeCount(request);
 
         return [followerCount, followeeCount];
     };
@@ -52,8 +56,13 @@ export class UserInfoPresenter extends Presenter<MessageView>{
             if (currentUser === displayedUser) {
                 this.isFollower = false;
             } else {
+                const request: IsFollowerStatusRequest = {
+                    token: authToken.token,
+                    user: currentUser.dto,
+                    otherUser: displayedUser.dto
+                }
                 this.isFollower = (
-                    await this.service.getIsFollowerStatus(authToken!, currentUser!, displayedUser!)
+                    await this.service.getIsFollowerStatus(request)
                 );
             }
         }, "determine follower status");
@@ -63,8 +72,12 @@ export class UserInfoPresenter extends Presenter<MessageView>{
         authToken: AuthToken,
         displayedUser: User
     ) {
+        const request: FollowRequest = {
+            token: authToken.token,
+            user: displayedUser
+        }
         this.doFailureReportingOperation(async () => {
-            this.followeeCount = (await this.service.getFolloweeCount(authToken, displayedUser));
+            this.followeeCount = (await this.service.getFolloweeCount(request));
         }, "get followees count");
     };
 
@@ -72,8 +85,12 @@ export class UserInfoPresenter extends Presenter<MessageView>{
         authToken: AuthToken,
         displayedUser: User
     ) {
+        const request: FollowRequest = {
+            token: authToken.token,
+            user: displayedUser
+        }
         this.doFailureReportingOperation(async () => {
-            this.followerCount = (await this.service.getFollowerCount(authToken, displayedUser));
+            this.followerCount = (await this.service.getFollowerCount(request));
         }, "get followers count")
     };
 

@@ -1,4 +1,4 @@
-import { AuthToken, Status, User } from "tweeter-shared";
+import { AuthToken, PostStatusRequest, Status, User } from "tweeter-shared";
 import { StatusService } from "../model/service/StatusService";
 import { MessageView, Presenter } from "./Presenter";
 
@@ -7,35 +7,44 @@ export interface PostStatusView extends MessageView {
 }
 
 export class PostStatusPresenter extends Presenter<PostStatusView>{
-  private service: StatusService;
+  private service: StatusService | null = null;
   public isLoading: boolean = false;
-  public post: string = "";
 
   public constructor(view: PostStatusView) {
     super(view);
-    this.service = new StatusService();
+    this.service = this.statusService;
   }
 
-  public async submitPost(event: React.MouseEvent, currentUser: User, authToken: AuthToken) {
-    event.preventDefault();
+  public get statusService() {
+    if (this.service == null) {
+      this.service = new StatusService();
+    }
+    return this.service;
+  }
+
+  public async submitPost(currentUser: User, authToken: AuthToken, post: string) {
     this.doFailureReportingOperation(async () => {
       this.isLoading = true;
       this.view.displayInfoMessage("Posting status...", 0);
 
-      const status = new Status(this.post, currentUser!, Date.now());
+      const status = new Status(post, currentUser!, authToken.timestamp);
+      const request : PostStatusRequest = {
+        token: authToken.token,
+        newStatus: status.dto
+      }
+      await this.statusService.(request);
 
-      await this.service.postStatus(authToken!, status);
-
-      this.post = "";
+      this.clearPost();
       this.view.displayInfoMessage("Status posted!", 2000);
-    }, "post the status", () => {
+      this.view.clearLastInfoMessage();
+      this.isLoading = false;
+    }, "post the status", undefined, () => {
       this.view.clearLastInfoMessage();
       this.isLoading = false;
     });
   };
 
-  public clearPost(event: React.MouseEvent) {
-    event.preventDefault();
+  public clearPost() {
     this.view.setPost("");
   };
 }

@@ -4,7 +4,11 @@ import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfoHook from "../userInfo/UserInfoHook";
 import { PostStatusPresenter, PostStatusView } from "../../presenters/PostStatusPresenter";
 
-const PostStatus = () => {
+interface Props {
+  presenter?: PostStatusPresenter;
+}
+
+const PostStatus = (props: Props) => {
   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
     useToastListener();
 
@@ -22,7 +26,9 @@ const PostStatus = () => {
     clearLastInfoMessage: clearLastInfoMessage,
     setPost: setPost
   }
-  const [presenter] = useState(new PostStatusPresenter(listener))
+  const [presenter] = useState(() => {
+    return props.presenter ?? new PostStatusPresenter(listener);
+  });
 
   return (
     <div className={isLoading ? "loading" : ""}>
@@ -31,6 +37,7 @@ const PostStatus = () => {
           <textarea
             className="form-control"
             id="postStatusTextArea"
+            data-testid="postStatusTextArea"
             rows={10}
             placeholder="What's on your mind?"
             value={post}
@@ -42,11 +49,15 @@ const PostStatus = () => {
         <div className="form-group">
           <button
             id="postStatusButton"
+            data-testid="postStatusButton"
             className="btn btn-md btn-primary me-1"
             type="button"
             disabled={checkButtonStatus()}
             style={{ width: "8em" }}
-            onClick={(event) => presenter.submitPost(event, currentUser!, authToken!)}
+            onClick={(event) => {
+              event.preventDefault();
+              presenter.submitPost(currentUser!, authToken!, post)
+            }}
           >
             {isLoading ? (
               <span
@@ -60,10 +71,14 @@ const PostStatus = () => {
           </button>
           <button
             id="clearStatusButton"
+            data-testid="clearStatusButton"
             className="btn btn-md btn-secondary"
             type="button"
             disabled={checkButtonStatus()}
-            onClick={(event) => presenter.clearPost(event)}
+            onClick={(event) => {
+              event.preventDefault();
+              presenter.clearPost()
+            }}
           >
             Clear
           </button>
