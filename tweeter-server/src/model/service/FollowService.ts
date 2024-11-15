@@ -16,6 +16,9 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
+        if(userAlias == null){
+            throw new Error("[Bad Request] alias invalid");
+        }
         return this.getFakeData(lastItem, pageSize, userAlias);
     };
 
@@ -25,6 +28,9 @@ export class FollowService {
         pageSize: number,
         lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
+        if(userAlias == null){
+            throw new Error("[Bad Request] alias invalid");
+        }
         return this.getFakeData(lastItem, pageSize, userAlias);
     };
 

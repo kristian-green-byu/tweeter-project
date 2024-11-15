@@ -8,6 +8,9 @@ export class StatusService {
     pageSize: number,
     lastItem: StatusDto | null
   ): Promise<[StatusDto[], boolean]> {
+    if(userAlias == null){
+      throw new Error("[Bad Request] alias invalid");
+    }
     return this.getFakeData(lastItem, pageSize);
   };
 
@@ -17,6 +20,9 @@ export class StatusService {
     pageSize: number,
     lastItem: StatusDto | null
   ): Promise<[StatusDto[], boolean]> {
+    if(userAlias == null){
+      throw new Error("[Bad Request] alias invalid");
+    }
     return this.getFakeData(lastItem, pageSize);
   }
 

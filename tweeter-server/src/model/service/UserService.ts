@@ -6,6 +6,9 @@ export class UserService {
         password: string
     ): Promise<[User, AuthToken]> {
         const user = FakeData.instance.firstUser;
+        if(alias == null || password == null){
+            throw new Error("[Bad Request] alias or password invalid");
+        }
         if (user === null) {
             throw new Error("Invalid alias or password");
         }
@@ -22,7 +25,9 @@ export class UserService {
         imageFileExtension: string
     ): Promise<[User, AuthToken]> {
         const user = FakeData.instance.firstUser;
-
+        if(alias == null || password == null){
+            throw new Error("[Bad Request] alias or password invalid");
+        }
         if (user === null) {
             throw new Error("Invalid registration");
         }
